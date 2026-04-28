@@ -1,0 +1,76 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Компоненты - Device Service
+
+Container_Boundary(device_service, "Device Service") {
+    Component(api, "DeviceController", "C# REST Controller", "принимает http запросы, валидирует данные")
+    
+    Component(device_mgr, "DeviceManager", "C# Service", "основная логика управления устройствами")
+    
+    Component(registry, "DeviceRegistry", "C# Service", "регистрация новых устройств в системе")
+    
+    Component(repo, "DeviceRepository", "C# Repository", "работа с базой данных")
+    
+    Component(events, "EventPublisher", "C# Service", "публикует события при изменении устройств")
+}
+
+ContainerDb(db, "PostgreSQL", "Database", "хранит данные об устройствах")
+
+Rel(api, device_mgr, "вызывает")
+Rel(api, registry, "вызывает при регистрации")
+Rel(device_mgr, repo, "читает/пишет")
+Rel(registry, repo, "сохраняет новое устройство")
+Rel(device_mgr, events, "публикует событие")
+Rel(repo, db, "SQL запросы")
+
+@enduml
+
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Компоненты - Telemetry Service
+
+Container_Boundary(telemetry_service, "Telemetry Service") {
+    Component(api, "TelemetryController", "C# REST Controller", "принимает запросы на получение телеметрии")
+    
+    Component(collector, "TelemetryCollector", "C# Service", "собирает данные с устройств")
+    
+    Component(processor, "TelemetryProcessor", "C# Service", "обрабатывает и агрегирует данные")
+    
+    Component(repo, "TelemetryRepository", "C# Repository", "сохраняет историю телеметрии")
+}
+
+ContainerDb(db, "PostgreSQL", "Database", "история телеметрии")
+
+Rel(api, collector, "запрашивает данные")
+Rel(collector, processor, "передаёт сырые данные")
+Rel(processor, repo, "сохраняет обработанные данные")
+Rel(repo, db, "SQL запросы")
+
+@enduml
+
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Компоненты - User Service
+
+Container_Boundary(user_service, "User Service") {
+    Component(api, "UserController", "C# REST Controller", "регистрация, логин, управление профилем")
+    
+    Component(auth, "AuthService", "C# Service", "авторизация, генерация JWT токенов")
+    
+    Component(user_mgr, "UserManager", "C# Service", "управление данными пользователя")
+    
+    Component(repo, "UserRepository", "C# Repository", "работа с базой данных")
+}
+
+ContainerDb(db, "PostgreSQL", "Database", "данные пользователей")
+
+Rel(api, auth, "вызывает при логине")
+Rel(api, user_mgr, "вызывает")
+Rel(auth, repo, "проверяет credentials")
+Rel(user_mgr, repo, "читает/пишет")
+Rel(repo, db, "SQL запросы")
+
+@enduml

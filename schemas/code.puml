@@ -1,0 +1,96 @@
+@startuml
+title Диаграмма классов - Device Service
+
+class DeviceController {
+    -deviceManager: IDeviceManager
+    -deviceRegistry: IDeviceRegistry
+    +GetAll(): IActionResult
+    +GetById(id: int): IActionResult
+    +Create(dto: CreateDeviceDto): IActionResult
+    +Update(id: int, dto: UpdateDeviceDto): IActionResult
+    +Delete(id: int): IActionResult
+}
+
+interface IDeviceManager {
+    +GetAll(): List<Device>
+    +GetById(id: int): Device
+    +Update(id: int, dto: UpdateDeviceDto): Device
+    +Delete(id: int): void
+}
+
+interface IDeviceRegistry {
+    +Register(dto: CreateDeviceDto): Device
+}
+
+class DeviceManager {
+    -repo: IDeviceRepository
+    -events: IEventPublisher
+    +GetAll(): List<Device>
+    +GetById(id: int): Device
+    +Update(id: int, dto: UpdateDeviceDto): Device
+    +Delete(id: int): void
+}
+
+class DeviceRegistry {
+    -repo: IDeviceRepository
+    +Register(dto: CreateDeviceDto): Device
+}
+
+interface IDeviceRepository {
+    +GetAll(): List<Device>
+    +GetById(id: int): Device
+    +Save(device: Device): Device
+    +Update(device: Device): Device
+    +Delete(id: int): void
+}
+
+class DeviceRepository {
+    -context: AppDbContext
+    +GetAll(): List<Device>
+    +GetById(id: int): Device
+    +Save(device: Device): Device
+    +Update(device: Device): Device
+    +Delete(id: int): void
+}
+
+class Device {
+    +Id: int
+    +Name: string
+    +Type: DeviceType
+    +Location: string
+    +Status: string
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+}
+
+enum DeviceType {
+    Thermostat
+    Light
+    Gate
+    Camera
+    Sensor
+}
+
+class CreateDeviceDto {
+    +Name: string
+    +Type: DeviceType
+    +Location: string
+}
+
+class UpdateDeviceDto {
+    +Name: string
+    +Status: string
+    +Location: string
+}
+
+DeviceController --> IDeviceManager
+DeviceController --> IDeviceRegistry
+DeviceManager ..|> IDeviceManager
+DeviceRegistry ..|> IDeviceRegistry
+DeviceManager --> IDeviceRepository
+DeviceRegistry --> IDeviceRepository
+DeviceRepository ..|> IDeviceRepository
+DeviceManager --> Device
+DeviceRepository --> Device
+
+@enduml

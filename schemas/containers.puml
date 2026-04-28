@@ -1,0 +1,54 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма контейнеров - Теплый дом (To-Be)
+
+Person(user, "Пользователь", "Управляет умным домом через приложение")
+
+System_Boundary(smarthome, "Экосистема умного дома") {
+    Container(gateway, "API Gateway", "nginx", "единая точка входа, роутит запросы к сервисам")
+    
+    Container(monolith, "Smart Home монолит", "Go/Gin", "пока остаётся, управляет датчиками температуры")
+    
+    Container(user_service, "User Service", "C# .NET", "регистрация, авторизация, управление аккаунтом")
+    
+    Container(device_service, "Device Service", "C# .NET", "управление устройствами, регистрация новых девайсов")
+    
+    Container(heating_service, "Heating Service", "C# .NET", "управление отоплением, установка температуры")
+    
+    Container(lighting_service, "Lighting Service", "C# .NET", "включение выключение света")
+    
+    Container(gate_service, "Gate Service", "C# .NET", "управление автоматическими воротами")
+    
+    Container(camera_service, "Camera Service", "C# .NET", "видеонаблюдение за домом")
+    
+    Container(telemetry_service, "Telemetry Service", "C# .NET", "собирает телеметрию со всех устройств")
+    
+    Container(temp_api, "Temperature API", "C# .NET", "отдаёт показания температуры")
+
+    ContainerDb(db_monolith, "PostgreSQL", "Database", "данные датчиков монолита")
+    
+    ContainerDb(db_devices, "PostgreSQL", "Database", "данные устройств")
+    
+    ContainerDb(db_users, "PostgreSQL", "Database", "данные пользователей")
+    
+    ContainerDb(db_telemetry, "PostgreSQL", "Database", "история телеметрии")
+}
+
+Rel(user, gateway, "использует", "HTTPS")
+Rel(gateway, monolith, "роутит запросы", "HTTP")
+Rel(gateway, user_service, "роутит запросы", "HTTP")
+Rel(gateway, device_service, "роутит запросы", "HTTP")
+Rel(gateway, heating_service, "роутит запросы", "HTTP")
+Rel(gateway, lighting_service, "роутит запросы", "HTTP")
+Rel(gateway, gate_service, "роутит запросы", "HTTP")
+Rel(gateway, camera_service, "роутит запросы", "HTTP")
+Rel(gateway, telemetry_service, "роутит запросы", "HTTP")
+
+Rel(monolith, temp_api, "запрашивает температуру", "HTTP")
+Rel(monolith, db_monolith, "читает/пишет", "SQL")
+Rel(device_service, db_devices, "читает/пишет", "SQL")
+Rel(user_service, db_users, "читает/пишет", "SQL")
+Rel(telemetry_service, db_telemetry, "пишет телеметрию", "SQL")
+
+@enduml

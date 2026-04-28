@@ -1,0 +1,148 @@
+openapi: 3.0.0
+info:
+  title: Device Service API
+  version: 1.0.0
+  description: сервис управления устройствами умного дома
+
+servers:
+  - url: http://localhost:5001
+
+paths:
+  /api/v1/devices:
+    get:
+      summary: получить все устройства
+      tags:
+        - devices
+      responses:
+        '200':
+          description: список устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+    post:
+      summary: добавить новое устройство
+      tags:
+        - devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceDto'
+      responses:
+        '201':
+          description: устройство создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          description: неверные данные
+
+  /api/v1/devices/{id}:
+    get:
+      summary: получить устройство по id
+      tags:
+        - devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: устройство найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: устройство не найдено
+    put:
+      summary: обновить устройство
+      tags:
+        - devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceDto'
+      responses:
+        '200':
+          description: устройство обновлено
+        '404':
+          description: устройство не найдено
+    delete:
+      summary: удалить устройство
+      tags:
+        - devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: устройство удалено
+        '404':
+          description: устройство не найдено
+
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [thermostat, light, gate, camera, sensor]
+        location:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateDeviceDto:
+      type: object
+      required:
+        - name
+        - type
+        - location
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [thermostat, light, gate, camera, sensor]
+        location:
+          type: string
+
+    UpdateDeviceDto:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        location:
+          type: string
