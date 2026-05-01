@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: Telemetry Service API
+  version: 1.0.0
+  description: сервис сбора телеметрии с устройств
+
+servers:
+  - url: http://localhost:5002
+
+paths:
+  /api/v1/telemetry/{sensorId}:
+    get:
+      summary: получить телеметрию по датчику
+      tags:
+        - telemetry
+      parameters:
+        - name: sensorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: история телеметрии
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryRecord'
+        '404':
+          description: датчик не найден
+
+  /api/v1/telemetry:
+    post:
+      summary: записать показание
+      tags:
+        - telemetry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTelemetryDto'
+      responses:
+        '201':
+          description: показание записано
+        '400':
+          description: неверные данные
+
+components:
+  schemas:
+    TelemetryRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        sensorId:
+          type: integer
+        value:
+          type: number
+        unit:
+          type: string
+        recordedAt:
+          type: string
+          format: date-time
+
+    CreateTelemetryDto:
+      type: object
+      required:
+        - sensorId
+        - value
+        - unit
+      properties:
+        sensorId:
+          type: integer
+        value:
+          type: number
+        unit:
+          type: string

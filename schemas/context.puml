@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Контекст системы Теплый дом (текущее состояние)
+
+Person(user, "Пользователь", "Владелец дома, может управлять отоплением и смотреть темпратуру")
+
+Person(specialist, "Техн. специалист", "Приезжает и подключает датики руками")
+
+System(monolith, "Smart Home", "Монолитное go приложение, всё в одном — датчики, отопление, темпратура")
+
+System_Ext(temp_api, "Temperature API", "Отдельный сервис который отдаёт показания с датчиков")
+
+System_Ext(db, "PostgreSQL", "База даных, хранит инфу о датчиках")
+
+Rel(user, monolith, "управляет отоплением и смотрит темпратуру", "HTTP")
+Rel(specialist, monolith, "подключает датчики")
+Rel(monolith, temp_api, "запрашивает показания", "HTTP")
+Rel(monolith, db, "читает/пишет", "SQL")
+
+@enduml
